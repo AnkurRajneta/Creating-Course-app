@@ -35,3 +35,26 @@ app.post('admin/signup',(req,res) => {
 app.post('admin/login',adminAuthentication,(req,res)=>{
     res.json({message:'Logged in successfully'});
 });
+
+app.post('/admin/courses',adminAuthentication,(req,res) => {
+    const course = req.body;
+    if(!course.title){
+        return res.json(411).send({"msg":"Please send me the title"});
+    }
+    course.id = Date.now();
+    COURSES.push(course);
+    res.json({message:'Course created successfully,courseId:course.id'});
+
+});
+app.put('/admin/courses/:courseId', adminAuthentication, (req,res) =>{
+    const courseId = parseInt(req.params.courseId);
+    const course = COURSES.find(c => c.id ===courseId);
+    if(course){
+        Object.assign(course,req.body);
+        res.json({message:'Courses Updated successfully'});
+    }else{
+        res.status(404).json({message:'Course not found'});
+    }
+
+    });
+
