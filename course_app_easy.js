@@ -19,6 +19,20 @@ const adminAuthentication = (req,res,next) =>{
     }
 };
 
+const userAuthentication = (req,res,next) =>{
+    const {username,password} = req.headers;
+    const user = USERS.find(a => a.username ===username & a.password === password)
+
+    if(user){
+        req.user = user;
+        next();
+    }
+    else{
+        res.status(403).json({message:'User authentication failed'})
+    }
+
+}
+
 app.post('admin/signup',(req,res) => {
     const admin = req.body;
     const existAdmin = ADMINS.find(a => a.username === admin.username);
@@ -56,5 +70,24 @@ app.put('/admin/courses/:courseId', adminAuthentication, (req,res) =>{
         res.status(404).json({message:'Course not found'});
     }
 
+    }); 
+   
+
+    app.post('/users/signup',(req,res) =>{
+        //const user = {...req.body, purchasedCourses: []};
+        const user = {
+            username : req.body.username,
+            password: req.body.password,
+            purchasedCourses: []
+        }
+        USERS.push(user);
+        res.json({message:"User created successfully"});
+    }); 
+
+    app.post('/users/login',userAuthentication,(req,res) =>{
+        res.json({message:'Logged in successfully'});
+
     });
 
+    app.get('/users/courses',userAuthentication)
+      
